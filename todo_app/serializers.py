@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import User, OTP, ToDo
 
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -11,10 +12,12 @@ class UserSerializer(serializers.ModelSerializer):
         user = User.objects.create_user(**validated_data)
         return user
 
+
 class OTPSerializer(serializers.ModelSerializer):
     class Meta:
         model = OTP
         fields = ['user', 'code', 'created_at']
+
 
 class ToDoSerializer(serializers.ModelSerializer):
     class Meta:

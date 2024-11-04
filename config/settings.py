@@ -1,4 +1,3 @@
-
 import environ
 from pathlib import Path
 from decouple import config
@@ -14,7 +13,6 @@ SECRET_KEY = config('SECRET_KEY')
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -61,6 +59,11 @@ TEMPLATES = [
     },
 ]
 
+AUTHENTICATION_BACKENDS = [
+    'todo_app.backends.EmailBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
 WSGI_APPLICATION = 'config.wsgi.application'
 
 # Database
@@ -104,18 +107,18 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
+AUTH_USER_MODEL = 'todo_app.User'
 
 STATIC_URL = 'static/'
 
-# Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 env = environ.Env()
 environ.Env.read_env()
 
 EMAIL_BACKEND = config('EMAIL_BACKEND')
 EMAIL_HOST = config('EMAIL_HOST')
-EMAIL_PORT = config('EMAIL_PORT', cast=int)  # Cast to int
-EMAIL_USE_TLS = config('EMAIL_USE_TLS', cast=bool)  # Cast to bool
+EMAIL_PORT = config('EMAIL_PORT', cast=int)
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', cast=bool)
 EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL')
