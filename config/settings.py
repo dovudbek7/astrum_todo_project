@@ -13,7 +13,9 @@ SECRET_KEY = config('SECRET_KEY')
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
-# CSRF_TRUSTED_ORIGINS = ['*']
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',
+]
 CSRF_TRUSTED_ORIGINS = [
     'https://e51a-84-54-83-231.ngrok-free.app',
     'https://another-ngrok-url.ngrok-free.app',
@@ -29,6 +31,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'drf_yasg',
     'todo_app',
+    'corsheaders',
 ]
 
 REST_FRAMEWORK = {
@@ -37,6 +40,7 @@ REST_FRAMEWORK = {
     ),
 }
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -127,4 +131,3 @@ EMAIL_USE_TLS = config('EMAIL_USE_TLS', cast=bool)
 EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL')
-
