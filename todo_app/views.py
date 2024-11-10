@@ -6,8 +6,10 @@ from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import authenticate
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from rest_framework_simplejwt.views import TokenObtainPairView
+# from . import serializers
 from .models import User, OTP, ToDo
-from .serializers import UserSerializer, ToDoSerializer
+from .serializers import UserSerializer, ToDoSerializer, CustomTokenObtainPairSerializer
 import random
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.mail import send_mail
@@ -135,11 +137,14 @@ class ToDoView(APIView):
         responses={201: ToDoSerializer, 400: "Invalid data"}
     )
     def post(self, request):
-        serializer = ToDoSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save(user=request.user)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            serializer = ToDoSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save(user=request.user)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @swagger_auto_schema(
         manual_parameters=[
@@ -153,39 +158,53 @@ class ToDoView(APIView):
         responses={200: ToDoSerializer(many=True)}
     )
     def get(self, request):
-        filter_type = request.query_params.get('filter')
-        todos = ToDo.objects.filter(user=request.user)
-        if filter_type == 'daily':
-            todos = todos.filter(due_date__day=datetime.today().day)
-        elif filter_type == 'weekly':
-            todos = todos.filter(due_date__week=datetime.today().isocalendar()[1])
-        elif filter_type == 'monthly':
-            todos = todos.filter(due_date__month=datetime.today().month)
-        serializer = ToDoSerializer(todos, many=True)
-        return Response(serializer.data)
+        try:
+            filter_type = request.query_params.get('filter')
+            todos = ToDo.objects.filter(user=request.user)
+            if filter_type == 'daily':
+                todos = todos.filter(due_date__day=datetime.today().day)
+            elif filter_type == 'weekly':
+                todos = todos.filter(due_date__week=datetime.today().isocalendar()[1])
+            elif filter_type == 'monthly':
+                todos = todos.filter(due_date__month=datetime.today().month)
+
+            serializer = ToDoSerializer(todos, many=True)
+            return Response(serializer.data)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @swagger_auto_schema(
         request_body=ToDoSerializer,
         responses={200: ToDoSerializer, 404: "Not found", 400: "Invalid data"}
     )
     def put(self, request, pk):
-        todo = ToDo.objects.filter(pk=pk, user=request.user).first()
-        if not todo:
-            return Response({"detail": "Not found"}, status=status.HTTP_404_NOT_FOUND)
+        try:
+            todo = ToDo.objects.filter(pk=pk, user=request.user).first()
+            if not todo:
+                return Response({"detail": "Not found"}, status=status.HTTP_404_NOT_FOUND)
 
-        serializer = ToDoSerializer(todo, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            serializer = ToDoSerializer(todo, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @swagger_auto_schema(
         responses={204: "Successfully deleted", 404: "Not found"}
     )
     def delete(self, request, pk):
-        todo = ToDo.objects.filter(pk=pk, user=request.user).first()
-        if not todo:
-            return Response({"detail": "Not found"}, status=status.HTTP_404_NOT_FOUND)
+        try:
+            todo = ToDo.objects.filter(pk=pk, user=request.user).first()
+            if not todo:
+                return Response({"detail": "Not found"}, status=status.HTTP_404_NOT_FOUND)
 
-        todo.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+            todo.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer

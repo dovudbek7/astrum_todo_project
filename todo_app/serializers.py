@@ -1,5 +1,10 @@
+from django.contrib.auth import authenticate
 from rest_framework import serializers
 from .models import User, OTP, ToDo
+from rest_framework_simplejwt.views import TokenObtainPairView
+
+
+# from .views import CustomTokenObtainPairSerializer
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -23,3 +28,26 @@ class ToDoSerializer(serializers.ModelSerializer):
     class Meta:
         model = ToDo
         fields = ['id', 'title', 'description', 'status', 'due_date', 'created_at', 'updated_at']
+
+
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        # Add custom claims if needed
+        return token
+
+    def validate(self, attrs):
+        credentials = {
+            'email': attrs.get('email'),
+            'password': attrs.get('password')
+        }
+
+        user = authenticate(**credentials)
+        if user is None:
+            raise serializers.ValidationError('Invalid credentials')
+
+        return super().validate(attrs)
