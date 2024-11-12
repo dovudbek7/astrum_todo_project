@@ -37,14 +37,10 @@ class BothHttpAndHttpsSchemaGenerator(OpenAPISchemaGenerator):
 
 schema_view = get_schema_view(
     openapi.Info(
-        "Sizning Loyihangiz Nomini Kiriting",  # API nomi
-        "v1.0",  # API versiyasi
-        'Loyiha nomi: "Loyihaning Nomi"',  # Batafsil ma'lumot
-        contact=openapi.Contact(
-            name="astrum.uz",  # Kontakt ma'lumotlari
-            url="<https://astrum.uz>",
-        ),
-        license=openapi.License(name="BSD License"),  # Litsenziya ma'lumotlari
+        "Todo",
+        "v1.0",
+        'Todo Porject',
+
     ),
     public=True,
     permission_classes=(permissions.AllowAny,),
