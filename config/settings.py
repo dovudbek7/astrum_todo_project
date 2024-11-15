@@ -16,6 +16,7 @@ from datetime import timedelta
 ALLOWED_HOSTS = ['*']
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
+    'http://localhost:5173',
 ]
 CSRF_TRUSTED_ORIGINS = [
     'https://e51a-84-54-83-231.ngrok-free.app',
